@@ -22,4 +22,9 @@ public class UserPromptResponseController {
     public ResponseEntity addHistoryElement(@PathVariable int id, @RequestBody UserPromptResponse userPromptResponse) {
         return userPromptResponseService.addUserPromptResponse(id, userPromptResponse);
     }
+
+    @GetMapping("/prompt/{id}")
+    public ResponseEntity findPromptById(@PathVariable int id) {
+        return userPromptResponseService.findById(id);
+    }
 }

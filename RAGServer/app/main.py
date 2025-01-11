@@ -28,23 +28,41 @@ index = None
 def initialize():
     global df, conversations, index
 
+    print("Inizializzazione del sistema...")
     # 1. Caricamento del dataset CSV
-    df = pd.read_csv(csv_path)
-    df.columns = df.columns.str.strip()
-    df['conversations'] = df['conversations'].apply(ast.literal_eval)
+    try:
+        print(f"Caricamento del file CSV da: {csv_path}")
+        df = pd.read_csv(csv_path)
+        df.columns = df.columns.str.strip()
+        df['conversations'] = df['conversations'].apply(ast.literal_eval)
+        print("Dataset caricato con successo.")
+    except Exception as e:
+        print(f"Errore nel caricamento del dataset: {e}")
+        raise HTTPException(status_code=500, detail="Errore nel caricamento del dataset.")
 
     # Estrazione conversazioni
+    print("Estrazione delle conversazioni...")
     conversations.clear()
     for row in df['conversations']:
-        user_message = next(item['content'] for item in row if item['role'] == 'user')
-        assistant_response = next(item['content'] for item in row if item['role'] == 'assistant')
-        conversations.append((user_message, assistant_response))
+        try:
+            user_message = next(item['content'] for item in row if item['role'] == 'user')
+            assistant_response = next(item['content'] for item in row if item['role'] == 'assistant')
+            conversations.append((user_message, assistant_response))
+        except Exception as e:
+            print(f"Errore nell'estrazione delle conversazioni: {e}")
 
     # 2. Creazione o caricamento embeddings e indice FAISS
     if os.path.exists(embedding_file) and os.path.exists(index_file):
-        embeddings = np.load(embedding_file)
-        index = faiss.read_index(index_file)
+        try:
+            print(f"Caricamento di embeddings e indice da: {embedding_file}, {index_file}")
+            embeddings = np.load(embedding_file)
+            index = faiss.read_index(index_file)
+            print("Embeddings e indice caricati con successo.")
+        except Exception as e:
+            print(f"Errore nel caricamento di embeddings e indice: {e}")
+            raise HTTPException(status_code=500, detail="Errore nel caricamento degli embeddings.")
     else:
+        print("Creazione di nuovi embeddings e indice FAISS...")
         user_messages = [conv[0] for conv in conversations]
         embeddings = model.encode(user_messages, convert_to_tensor=False)
         np.save(embedding_file, embeddings)
@@ -52,6 +70,7 @@ def initialize():
         index = faiss.IndexFlatL2(dim)
         index.add(embeddings)
         faiss.write_index(index, index_file)
+        print("Embeddings e indice creati con successo.")
 
 
 # Inizializza il sistema
@@ -66,6 +85,7 @@ class QueryRequest(BaseModel):
 # Endpoint di test per verifica
 @app.get("/")
 def root():
+    print("Ping ricevuto al root endpoint.")
     return {"message": "Microservizio per query su Linux Commands Conversations è attivo!"}
 
 
@@ -74,17 +94,21 @@ def root():
 def handle_query(request: QueryRequest):
     global conversations, index
 
+    print("Richiesta ricevuta per query:", request.query)
     query = request.query
     query_embedding = model.encode([query], convert_to_tensor=False)
+    print(f"Embedding della query generato: {query_embedding.shape}")
 
     # Recupera i documenti più simili
     D, I = index.search(query_embedding, k=3)
     if len(I[0]) == 0:
+        print("Nessuna conversazione rilevante trovata.")
         raise HTTPException(status_code=404, detail="Nessuna conversazione rilevante trovata.")
 
     # Recupera le conversazioni pertinenti
     retrieved_conversations = [conversations[i] for i in I[0]]
     retrieved_context = retrieved_conversations[0][1]
+    print(f"Contesto recuperato per la query: {retrieved_context}")
 
     # Formatta il contesto per Ollama
     input_text = (
@@ -95,10 +119,15 @@ def handle_query(request: QueryRequest):
     )
 
     # Generazione della risposta con Ollama
-    client = ollama.Client(host="http://localhost:11434")
-    response = client.chat(model="llama3.1", messages=[{"role": "user", "content": input_text}])
-    response_content = response['message']['content']
-
+    try:
+        print("Generazione della risposta tramite Ollama...")
+        client = ollama.Client()
+        response = client.chat(model="llama3.2:1b", messages=[{"role": "user", "content": input_text}])
+        response_content = response['message']['content']
+        print("Risposta generata da Ollama." + response_content)
+    except Exception as e:
+        print(f"Errore durante la generazione della risposta con Ollama: {e}")
+        raise HTTPException(status_code=500, detail="Errore durante la generazione della risposta.")
     return {
         "query": query,
         "retrieved_context": retrieved_context,
@@ -107,5 +136,5 @@ def handle_query(request: QueryRequest):
 
 
 if __name__ == "__main__":
-
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    print("Avvio del server FastAPI...")
+    uvicorn.run(app, host="0.0.0.0", port=8083)

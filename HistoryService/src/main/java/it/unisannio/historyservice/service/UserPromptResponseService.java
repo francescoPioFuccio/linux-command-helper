@@ -39,6 +39,13 @@ public class UserPromptResponseService {
 
         return ResponseEntity.status(HttpStatus.CREATED).body("Risposta aggiunta con successo!");
     }
+
+    public ResponseEntity findById(int id) {
+        if(!userPromptResponseRepository.existsById(id))
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+
+        return ResponseEntity.ok(userPromptResponseRepository.findById(id));
+    }
 }
 
 

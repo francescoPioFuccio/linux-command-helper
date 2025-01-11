@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Linux Command Helper</title>
+    <link rel="stylesheet" type="text/css" href="/css/style.css">
+</head>
+<body>
+<div id="sidebar">
+    <h3>
+        Storia
+        <button id="logoutButton" onclick="logout()">Logout</button>
+    </h3>
+    <ul id="history" style="list-style: none; padding: 0;">
+        <!-- La storia verrà aggiunta qui dinamicamente -->
+    </ul>
+</div>
+
+<div id="chat">
+    <div id="messages">
+        <!-- Messaggi dinamici -->
+        <div id="loadingOverlay" class="hidden">
+            <div class="spinner"></div>
+            <p>Risposta dall'LLM in corso...</p>
+        </div>
+    </div>
+
+    <div id="input-bar">
+        <input type="text" id="userInput" placeholder="Scrivi la tua domanda...">
+        <button onclick="sendMessage()">Invia</button>
+    </div>
+</div>
+
+<script src="/js/chat.js"></script>
+</body>
+</html>
+

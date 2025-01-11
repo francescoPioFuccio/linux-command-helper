@@ -1,21 +1,13 @@
-package it.unisannio.historyservice.entity;
+package it.unisannio.gateway.entity;
 
-import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
-@Entity
 public class UserPromptResponse {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-    @Column(unique = true, nullable = false)
     private int userId;
-    @Column(nullable = false)
     private String prompt;
-    @Column(nullable = false, length = 1000)
     private String response;
-    @Column(nullable = false, updatable = false)
     private LocalDateTime timestamp;
 
     protected UserPromptResponse() { }

@@ -22,4 +22,12 @@ public class UserController {
     public ResponseEntity<String> deleteUser(@PathVariable Integer id) {
         return userService.deleteUser(id);
     }
+
+    @GetMapping("/email/{email}")
+    public ResponseEntity getUserByEmail(@PathVariable String email) {
+        if(userService.getUserByEmail(email) == null)
+            return ResponseEntity.notFound().build();
+
+        return ResponseEntity.ok().body(userService.getUserByEmail(email).getId());
+    }
 }

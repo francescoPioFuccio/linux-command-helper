@@ -12,25 +12,19 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity
 public class SecurityConfig {
 
+    @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         http
-                .csrf(csrf -> csrf
-                        .disable())
-
+                .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/login", "/register").permitAll()
+                        .requestMatchers("/static/**", "/css/**", "/js/**", "/images/**").permitAll()
+                        .requestMatchers("/oauth2/**", "/login/oauth2/**").permitAll()
                         .anyRequest().authenticated()
                 )
-
-                .formLogin(form -> form
-                        .loginPage("/login")
-                        .permitAll()
-                ).oauth2Login(oauth -> oauth
-                        .loginPage("/login")
-                        .permitAll()
-                        .authorizationEndpoint(auth ->
-                                auth.baseUri("/oauth2/authorization"))
+                .oauth2Login(oauth2 -> oauth2
+                        .defaultSuccessUrl("/chat", true)
+                        .failureUrl("/login?error=true")
                 );
 
         return http.build();
