@@ -31,4 +31,8 @@ public class UserService {
        userRepository.deleteById(id);
        return ResponseEntity.status(HttpStatus.OK).body("User deleted successfully!");
     }
+
+    public User getUserByEmail(String email) {
+        return (User) userRepository.findByEmail(email).orElse(null);
+    }
 }
