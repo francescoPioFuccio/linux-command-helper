@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="stylesheet" href="/static/CSS/style.css">
+</head>
+<body>
+<div class="login-container">
+    <h2>Login</h2>
+
+    <!-- Form di Login -->
+    <form action="/login" method="POST" class="login-form">
+        <div class="form-group">
+            <label for="username">Username</label>
+            <input type="text" id="username" name="username" placeholder="Inserisci il tuo username" required>
+        </div>
+        <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" placeholder="Inserisci la tua password" required>
+        </div>
+        <button type="submit" class="btn">Accedi</button>
+    </form>
+
+    <div class="or-divider">
+        <span>Oppure accedi con:</span>
+    </div>
+
+    <!-- Pulsanti di Accesso Esterno -->
+    <div class="social-login">
+        <a href="/auth/github" class="social-btn github">Accedi con GitHub</a>
+        <a href="/auth/google" class="social-btn google">Accedi con Google</a>
+        <a href="/auth/facebook" class="social-btn facebook">Accedi con Facebook</a>
+    </div>
+
+    <!-- Link per la registrazione -->
+    <div class="signup-link">
+        <p>Ancora non registrato? <a href="/register">Registrati</a></p>
+    </div>
+</div>
+<script src="script.js"></script>
+</body>
+</html>
