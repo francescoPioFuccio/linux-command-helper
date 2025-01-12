@@ -29,7 +29,7 @@ public class UserPromptResponseService {
 
         List<UserPromptResponse> existingResponses = userPromptResponseRepository.findAllByUserIdOrderByTimestampAsc(userId);
 
-        if (existingResponses.size() >= 20) {
+        if (existingResponses.size() > 20) {
             UserPromptResponse oldestResponse = existingResponses.get(0);
             userPromptResponseRepository.delete(oldestResponse);
         }

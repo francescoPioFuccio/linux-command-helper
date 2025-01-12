@@ -22,7 +22,14 @@ public class SecurityConfig {
                         .requestMatchers("/oauth2/**", "/login/oauth2/**").permitAll()
                         .anyRequest().authenticated()
                 )
+                .formLogin(form -> form
+                        .loginPage("/login") // Specifica il path della tua pagina personalizzata
+                        .permitAll() // Consente l'accesso senza autenticazione
+                        .defaultSuccessUrl("/chat", true)
+                        .failureUrl("/login?error=true")
+                )
                 .oauth2Login(oauth2 -> oauth2
+                        .loginPage("/oauth2/login")
                         .defaultSuccessUrl("/chat", true)
                         .failureUrl("/login?error=true")
                 );

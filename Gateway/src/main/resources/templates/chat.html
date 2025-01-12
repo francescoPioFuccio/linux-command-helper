@@ -1,38 +1,41 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Linux Command Helper</title>
-    <link rel="stylesheet" type="text/css" href="/css/style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Linux Command Helper - Chat</title>
+  <link rel="icon" href="/images/logo2.ico" type="image/x-icon">
+  <link rel="stylesheet" type="text/css" href="/css/chat.css">
 </head>
 <body>
-<div id="sidebar">
-    <h3>
-        Storia
-        <button id="logoutButton" onclick="logout()">Logout</button>
-    </h3>
-    <ul id="history" style="list-style: none; padding: 0;">
-        <!-- La storia verrà aggiunta qui dinamicamente -->
-    </ul>
+
+<div class="sidebar">
+  <h2>Storico Domande</h2>
+  <ul class="history" id="historyList"></ul>
 </div>
 
-<div id="chat">
-    <div id="messages">
-        <!-- Messaggi dinamici -->
-        <div id="loadingOverlay" class="hidden">
-            <div class="spinner"></div>
-            <p>Risposta dall'LLM in corso...</p>
-        </div>
-    </div>
+<button id="logoutButton" class="logout-button" onclick="logout()">Logout</button>
 
-    <div id="input-bar">
-        <input type="text" id="userInput" placeholder="Scrivi la tua domanda...">
-        <button onclick="sendMessage()">Invia</button>
-    </div>
+<div class="main-container">
+  <div class="chat-container" id="chatContainer">
+    <div class="message bot">Benvenuto nel chatbot dei comandi Linux! Chiedi un comando per iniziare.</div>
+  </div>
+
+  <div class="input-container">
+    <input type="text" id="userInput" placeholder="Chiedi un comando Linux..." />
+    <button id="sendButton">Invia</button>
+  </div>
+</div>
+
+<div id="popup" class="popup hidden">
+  <div class="popup-content">
+    <button id="closePopup" class="close-popup">✖</button>
+    <h3>Dettagli del Comando</h3>
+    <p><strong>Domanda:</strong> <span id="popupQuestion"></span></p>
+    <p><strong>Risposta:</strong> <span id="popupAnswer"></span></p>
+  </div>
 </div>
 
 <script src="/js/chat.js"></script>
 </body>
 </html>
-
