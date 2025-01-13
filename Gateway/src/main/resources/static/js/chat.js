@@ -1,5 +1,6 @@
-const messagesDiv = document.getElementById('messages');
-const historyUl = document.getElementById('history');
+const chatContainer = document.getElementById('chatContainer');
+const userInput = document.getElementById('userInput');
+const sendButton = document.getElementById('sendButton');
 let userId;
 
 function logout() {
@@ -7,7 +8,6 @@ function logout() {
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
-    hideLoadingOverlay();
     userId = await fetchUserId();
 
     if (!userId) {
@@ -52,24 +52,6 @@ async function loadHistory(userId) {
     renderHistory(history);
 }
 
-function renderHistory(history) {
-    historyUl.innerHTML = '';
-
-    history.slice().reverse().forEach(item => {
-        const listItem = document.createElement('li');
-        listItem.textContent = item.prompt;
-
-        listItem.setAttribute('data-id', item.id);
-
-        listItem.addEventListener('click', async () => {
-            const id = listItem.getAttribute('data-id');
-            await fetchPromptDetails(id);
-        });
-
-        historyUl.appendChild(listItem);
-    });
-}
-
 async function fetchPromptDetails(id) {
     const url = `/AIChat/details/${id}`;
 
@@ -87,46 +69,35 @@ async function fetchPromptDetails(id) {
     }
 }
 
+function addMessage(text, sender) {
+    const message = document.createElement('div');
+    message.classList.add('message', sender, 'fade');
+    message.textContent = text;
+
+    chatContainer.appendChild(message);
+
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+}
+
 async function sendMessage() {
-    const userInput = document.getElementById('userInput');
     const text = userInput.value.trim();
 
-    if (text === '') return;
+    if (text) {
+        addMessage(text, 'user');
+        userInput.value = '';
+        addTypingIndicator();
 
-    addMessage('user', text);
-    showLoadingOverlay();
-
-    try {
-        const botResponse = await sendToServer(text);
-        addMessage('bot', botResponse);
-        await loadHistory(userId);
-    } catch (error) {
-        console.error('Errore durante la comunicazione con il server:', error);
-        addMessage('bot', 'Errore: impossibile ottenere una risposta dal server.');
-    } finally {
-        hideLoadingOverlay();
+        try {
+            const botResponse = await sendToServer(text);
+            addMessage(botResponse, 'bot');
+            await loadHistory(userId);
+        } catch (error) {
+            console.error('Errore durante la comunicazione con il server:', error);
+            addMessage('bot', 'Errore: impossibile ottenere una risposta dal server.');
+        } finally {
+            removeTypingIndicator();
+        }
     }
-
-    userInput.value = '';
-}
-
-
-function addMessage(sender, text) {
-    const messageDiv = document.createElement('div');
-    messageDiv.className = `message ${sender}`;
-
-    const messageText = document.createElement('p');
-    messageText.textContent = text;
-
-    messageDiv.appendChild(messageText);
-    messagesDiv.appendChild(messageDiv);
-    messagesDiv.scrollTop = messagesDiv.scrollHeight;
-}
-
-function addHistory(text) {
-    const listItem = document.createElement('li');
-    listItem.textContent = text;
-    historyUl.appendChild(listItem);
 }
 
 async function sendToServer(userMessage) {
@@ -146,35 +117,66 @@ async function sendToServer(userMessage) {
     return await response.text();
 }
 
-function showPopup(prompt, response) {
-    const popup = document.createElement('div');
-    popup.className = 'popup';
+function addTypingIndicator() {
+    const typingIndicator = document.createElement('div');
+    typingIndicator.classList.add('typing-indicator');
+    typingIndicator.id = 'typingIndicator';
+    typingIndicator.innerHTML = '<span></span><span></span><span></span>';
 
-    popup.innerHTML = `
-        <div class="popup-content">
-            <h3>Dettagli</h3>
-            <p><strong>Domanda:</strong> ${prompt}</p>
-            <p><strong>Risposta:</strong> ${response}</p>
-            <button id="closePopup">Chiudi</button>
-        </div>
-    `;
+    chatContainer.appendChild(typingIndicator);
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+}
 
-    document.body.appendChild(popup);
+function removeTypingIndicator() {
+    const typingIndicator = document.getElementById('typingIndicator');
+    if (typingIndicator) {
+        typingIndicator.remove();
+    }
+}
 
-    document.getElementById('closePopup').addEventListener('click', () => {
-        popup.remove();
+sendButton.addEventListener('click', sendMessage);
+
+userInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+        sendMessage();
+    }
+});
+
+const historyList = document.getElementById('historyList');
+const popup = document.getElementById('popup');
+const popupQuestion = document.getElementById('popupQuestion');
+const popupAnswer = document.getElementById('popupAnswer');
+const closePopup = document.getElementById('closePopup');
+
+function showPopup(question, answer) {
+    popupQuestion.textContent = question;
+    popupAnswer.textContent = answer;
+    popup.classList.remove('hidden');
+}
+
+closePopup.addEventListener('click', () => {
+    popup.classList.add('hidden');
+});
+
+async function renderHistory(history) {
+    historyList.innerHTML = ''; // Svuota la lista
+
+    history.slice().reverse().forEach(item => {
+        const listItem = document.createElement('li');
+        listItem.textContent = item.prompt;
+        listItem.setAttribute('data-id', item.id);
+
+        listItem.addEventListener('click', async () => {
+            const id = listItem.getAttribute('data-id');
+            await fetchPromptDetails(id);
+        });
+
+        historyList.appendChild(listItem);
     });
 }
 
-function showLoadingOverlay() {
-    const overlay = document.getElementById('loadingOverlay');
-    if (!overlay.classList.contains('hidden')) return;
-    overlay.classList.remove('hidden');
-}
+const logoutButton = document.getElementById('logoutButton');
 
-function hideLoadingOverlay() {
-    const overlay = document.getElementById('loadingOverlay');
-    if (overlay.classList.contains('hidden')) return;
-    overlay.classList.add('hidden');
-
-}
+logoutButton.addEventListener('click', () => {
+    logout();
+});

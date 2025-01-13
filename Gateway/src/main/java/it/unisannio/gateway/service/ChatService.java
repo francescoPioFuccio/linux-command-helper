@@ -26,8 +26,6 @@ public class ChatService {
         Client client = ClientBuilder.newClient();
         WebTarget target = client.target("http://localhost:8083/query");
 
-        System.out.println(request.getMessage());
-
         String jsonMessage = "{ \"query\": \"" + request.getMessage() + "\" }";
 
         Response response = target.request(MediaType.APPLICATION_JSON)
