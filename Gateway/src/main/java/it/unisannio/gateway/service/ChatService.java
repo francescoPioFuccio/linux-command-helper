@@ -24,7 +24,7 @@ public class ChatService {
 
     public ResponseEntity<String> sendMessage(MessageRequest request) {
         Client client = ClientBuilder.newClient();
-        WebTarget target = client.target("http://localhost:8083/query");
+        WebTarget target = client.target("http://rag-server:8083/query");
 
         String jsonMessage = "{ \"query\": \"" + request.getMessage() + "\" }";
 
@@ -56,7 +56,7 @@ public class ChatService {
 
     private void saveUserHistory(String prompt, String response, int userId){
         Client client = ClientBuilder.newClient();
-        WebTarget target = client.target("http://localhost:8082/history/user/" + userId);
+        WebTarget target = client.target("http://history-service:8082/history/user/" + userId);
         UserPromptResponse history = new UserPromptResponse(userId, prompt, response);
 
         target.request(MediaType.APPLICATION_JSON)
@@ -66,7 +66,7 @@ public class ChatService {
 
     public ResponseEntity<List<Map<String, Object>>> getUserHistory(int userId) {
         Client client = ClientBuilder.newClient();
-        WebTarget target = client.target("http://localhost:8082/history/user/" + userId);
+        WebTarget target = client.target("http://history-service:8082/history/user/" + userId);
 
         Response response = target.request(MediaType.APPLICATION_JSON).get();
 
@@ -88,7 +88,7 @@ public class ChatService {
 
     public ResponseEntity getPromptDetails(int id) {
         Client client = ClientBuilder.newClient();
-        WebTarget target = client.target("http://localhost:8082/history/prompt/" + id);
+        WebTarget target = client.target("http://history-service:8082/history/prompt/" + id);
         Response response = target.request(MediaType.APPLICATION_JSON).get();
         if (response.getStatus() != 200)
             return ResponseEntity.status(response.getStatus()).body(null);

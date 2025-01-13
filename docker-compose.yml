@@ -1,0 +1,117 @@
+version: '3.8'
+
+services:
+  user-db:
+    image: mysql/mysql-server:latest
+    restart: always
+    container_name: user-db
+    hostname: user-db
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: ingsw
+      MYSQL_USER: Springboot
+      MYSQL_PASSWORD: password
+    networks:
+      - network
+    volumes:
+      - user-data:/var/lib/mysql
+
+  history-db:
+    image: mysql/mysql-server:latest
+    restart: always
+    container_name: history-db
+    hostname: history-db
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: ingsw
+      MYSQL_USER: Springboot
+      MYSQL_PASSWORD: password
+    networks:
+      - network
+    volumes:
+      - history-data:/var/lib/mysql
+
+  gateway:
+    build:
+      context: ./Gateway
+      dockerfile: Dockerfile
+    restart: always
+    container_name: gateway-container
+    hostname: gateway-container
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_CLIENT_ID: 512055874203-u0a3knhom8rg54n7h995v8t8vki3kncs.apps.googleusercontent.com
+      SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_CLIENT_SECRET: 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
+      SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_SCOPE: email,profile
+      SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_FACEBOOK_CLIENT_ID: 1353928552262872
+      SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_FACEBOOK_CLIENT_SECRET: 697a9db48ee24d18d1163c11d9ee7901
+    networks:
+      - network
+
+  user-service:
+    build:
+      context: ./UserService
+      dockerfile: Dockerfile
+    restart: always
+    container_name: user-service
+    hostname: user-service
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://user-db:3306/ingsw
+      SPRING_DATASOURCE_USERNAME: Springboot
+      SPRING_DATASOURCE_PASSWORD: password
+    depends_on:
+      - user-db
+    networks:
+      - network
+
+  history-service:
+    build:
+      context: ./HistoryService
+      dockerfile: Dockerfile
+    restart: always
+    container_name: history-service
+    hostname: history-service
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://history-db:3306/ingsw
+      SPRING_DATASOURCE_USERNAME: Springboot
+      SPRING_DATASOURCE_PASSWORD: password
+    depends_on:
+      - history-db
+    networks:
+      - network
+
+  llm-server:
+    build:
+      context: ./LLMServer
+      dockerfile: Dockerfile
+    environment:
+      MODEL_NAME: phi3
+    container_name: llm-server
+    hostname: llm-server
+    networks:
+      - llm-network
+
+  rag-server:
+    build:
+      context: ./RAGServer
+      dockerfile: Dockerfile
+    restart: always
+    container_name: rag-container
+    hostname: rag-container
+    environment:
+      MODEL_NAME: phi3
+    networks:
+      - network
+      - llm-network
+
+networks:
+  network:
+    driver: bridge
+  llm-network:
+    driver: bridge
+
+volumes:
+  user-data:
+  history-data:
+

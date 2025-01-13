@@ -25,7 +25,7 @@ public class AuthService {
         try {
             user.setPassword(passwordEncoder.encode(user.getPassword()));
 
-            WebTarget target = client.target("http://localhost:8081/client/register");
+            WebTarget target = client.target("http://user-service:8081/client/register");
 
             Response response = target
                     .request(MediaType.APPLICATION_JSON)
@@ -50,7 +50,7 @@ public class AuthService {
         Client client = ClientBuilder.newClient();
 
         try {
-            WebTarget target = client.target("http://localhost:8081/client/" + id);
+            WebTarget target = client.target("http://user-service:8081/client/" + id);
 
             Response response = target.request(MediaType.APPLICATION_JSON).delete();
 

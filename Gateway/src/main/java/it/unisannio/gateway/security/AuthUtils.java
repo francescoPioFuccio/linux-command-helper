@@ -18,7 +18,7 @@ public class AuthUtils {
         String email = principal.getAttribute("email");
 
         Client client = ClientBuilder.newClient();
-        WebTarget target = client.target("http://localhost:8081/user/email/" + email);
+        WebTarget target = client.target("http://user-service:8081/user/email/" + email);
 
         Response response = target.request(MediaType.APPLICATION_JSON).get();
 

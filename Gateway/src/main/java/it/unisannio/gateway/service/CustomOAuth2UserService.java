@@ -43,7 +43,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         user.setProviderId(providerId);
 
         Client client = ClientBuilder.newClient();
-        WebTarget target = client.target("http://localhost:8081/user/register");
+        WebTarget target = client.target("http://user-service:8081/user/register");
 
         try {
             Response response = target

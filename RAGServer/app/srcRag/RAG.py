@@ -7,12 +7,15 @@ from rag_utils import load_dataset, extract_conversations, create_faiss_index, r
 from sentence_transformers import SentenceTransformer
 import faiss
 import numpy as np
+import os
+
+model_name = os.getenv("MODEL_NAME", "llama3.2-vision")
 
 # Inizializza FastAPI
 app = FastAPI()
 
 # Variabili globali
-csv_path = '../../linux_commands_conversations.csv'
+csv_path = '/app/linux_commands_conversations.csv'
 embedding_file = 'user_embeddings.npy'
 index_file = 'faiss_index.index'
 model = SentenceTransformer('all-MiniLM-L6-v2')
@@ -51,11 +54,11 @@ def handle_query(request: QueryRequest):
     retrieved_context = context[0][1]
     input_text = f"Task: Rispondi alla domanda dell'utente fornendo un comando Linux utile.\n\nQuery dell'utente: {query}\n\nContesto (risposte pertinenti):\n{retrieved_context}\n\nFornisci una risposta chiara e completa alla query."
 
-    client = ollama.Client()
-    response = client.chat(model="llama3.2-vision", messages=[{"role": "user", "content": input_text}])
+    client = ollama.Client(host="http://llm-server:11434")
+    response = client.chat(model=model_name, messages=[{"role": "user", "content": input_text}])
     response_content = response['message']['content']
 
     return {"query": query, "retrieved_context": retrieved_context, "response": response_content}
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=8083)
