@@ -9,7 +9,7 @@ public class UserPromptResponse {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-    @Column(unique = true, nullable = false)
+    @Column(nullable = false)
     private int userId;
     @Column(nullable = false)
     private String prompt;
