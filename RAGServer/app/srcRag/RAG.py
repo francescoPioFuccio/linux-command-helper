@@ -49,13 +49,13 @@ def handle_query(request: QueryRequest):
         raise HTTPException(status_code=404, detail="Nessuna conversazione rilevante trovata.")
 
     retrieved_context = context[0][1]
-    input_text = f"Task: Rispondi alla domanda dell'utente fornendo un comando Linux utile.\n\nQuery dell'utente: {query}\n\nContesto (risposte pertinenti):\n{retrieved_context}\n\nFornisci una risposta chiara e completa alla query."
+    input_text = f"Task: Rispondi alla domanda dell'utente fornendo solo il comando Linux utile.\n\nQuery dell'utente: {query}\n\nContesto (risposte pertinenti):\n{retrieved_context}\n\n"
 
     client = ollama.Client()
-    response = client.chat(model="llama3.2-vision", messages=[{"role": "user", "content": input_text}])
+    response = client.chat(model="tinyllama", messages=[{"role": "user", "content": input_text}])
     response_content = response['message']['content']
 
     return {"query": query, "retrieved_context": retrieved_context, "response": response_content}
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=8083)
